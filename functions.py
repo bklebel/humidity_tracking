@@ -1,20 +1,20 @@
-import psycopg2
+# import psycopg2
 import Adafruit_DHT
 from datetime import datetime
-from time import sleep
+import time
 
 import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-def connect_db():
-    with open('db_credentials.txt') as file:
-        params = file.read()
+# def connect_db():
+#     with open('db_credentials.txt') as file:
+#         params = file.read()
 
-    connection = psycopg2.connect(params)
-    
-    return connection
+#     connection = psycopg2.connect(params)
+
+#     return connection
 
 # define function for printing results
 def format_result(time, humidity, temperature):
@@ -26,16 +26,19 @@ def format_result(time, humidity, temperature):
     else:
         return 'Failed to get reading.'
 
+
 def get_data():
-    # sensor type and the pin to which the sensor is connected are hard coded since they don't change
+    # sensor type and the pin to which the sensor is connected are hard coded
+    # since they don't change
     humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 4)
-    time = datetime.now()
+    date = datetime.now()
 
     if humidity is not None and temperature is not None:
-        return (time, humidity, temperature)
+        return (date, humidity, temperature)
     else:
-        logger.info('We got no reading, but ``humidity = ' + str(humidity) + ' & temp = ' + str(temperature) + '`` , trying again.')
-        sleep(2) # sleep for two seconds before re-trying
+        logger.info('We got no reading, but ``humidity = ' + str(humidity) +
+                    ' & temp = ' + str(temperature) + '`` , trying again.')
+        time.sleep(2)  # sleep for two seconds before re-trying
         return get_data()
 
 
@@ -48,7 +51,8 @@ def create_logger(file):
     fh = logging.FileHandler(file)
 
     # create formatter and add it to the handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
 
     # add handler
