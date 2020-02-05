@@ -42,17 +42,19 @@ def get_data():
         return get_data()
 
 
-def create_logger(file):
+def create_logger(file, log=None, form='%(asctime)s - %(name)s - %(levelname)s - %(message)s'):
     # set up logging for debugging
-    logger = logging.getLogger()
+    if log is None:
+        logger = logging.getLogger()
+    else:
+        logger = logging.getLogger(log)
     logger.setLevel(logging.INFO)
 
     # create file handler
     fh = logging.FileHandler(file)
 
     # create formatter and add it to the handler
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(form)
     fh.setFormatter(formatter)
 
     # add handler

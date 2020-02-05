@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+# import sys
 # import Adafruit_DHT
 # import logging
 # from time import sleep
@@ -14,10 +14,11 @@ from functions import create_logger
 # cursor = con.cursor()
 
 # set sleep duration for test purposes
-sleep_duration = 2
+sleep_duration = 30
 
 # set up logging for debugging
-logger = create_logger('read_sensor.log')
+logger_events = create_logger('read_sensor.log', 'events')
+logger_data = create_logger(file='data.log', log='temps', form='%(asctime)s %(message)s')
 
 
 # function for writing results to database
@@ -37,22 +38,24 @@ logger = create_logger('read_sensor.log')
 #     logger.info("Database connections closed.")
 
 
-def main():
-    logger.info(f'Reading data and writing to database every {sleep_duration} seconds.')
+# def main():
+
+
+if __name__ == '__main__':
+    logger_events.info(f'Reading data and writing to database every {sleep_duration} seconds.')
     while True:
         date, humidity, temperature = get_data()
         print(date, humidity, temperature)
+        logger_data.info(f'; {humidity}; {temperature}')
 
         # write_to_db(cursor, time, humidity, temperature)
 
         time.sleep(sleep_duration)
 
-
-if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        sys.exit(0)
-    finally:
-        logger.info('Terminating...')
-        # cleanup_db()
+    # try:
+    #     main()
+    # except KeyboardInterrupt:
+    #     sys.exit(0)
+    # finally:
+    #     logger_events.info('Terminating...')
+    #     # cleanup_db()
