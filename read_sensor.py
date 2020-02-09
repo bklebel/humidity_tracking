@@ -1,14 +1,15 @@
 import time
-from functions import get_data
-from functions import create_logger
+import sys
 
 import numpy as np
 
 from prometheus_client import start_http_server
 from prometheus_client import Gauge
 
-
 from daemon import Daemon
+
+from functions import get_data
+from functions import create_logger
 
 
 sleep_duration = 60
