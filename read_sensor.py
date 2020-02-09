@@ -25,21 +25,6 @@ logger_events = create_logger('read_sensor.log', 'events')
 logger_data = create_logger(file='data.log', log='temps', form='%(asctime)s %(message)s')
 
 
-def eliminateNoise(values, std_factor = 2):
-    mean = np.mean(values)
-    standard_deviation = np.std(values)
-
-    if standard_deviation == 0:
-        return np.mean(values)
-
-    final_values = np.nan_like(values)
-    final_values = values[np.where(values > mean - std_factor * standard_deviation)]
-    final_values[np.where(np.isnan(final_values))] = values[np.where(values < mean + std_factor * standard_deviation)]
-    final_values = [element for element in values if element > mean - std_factor * standard_deviation]
-    final_values = [element for element in final_values if element < mean + std_factor * standard_deviation]
-
-    return np.mean(final_values)
-
 
 # function for writing results to database
 # def write_to_db(cursor, time, humidity, temperature):
