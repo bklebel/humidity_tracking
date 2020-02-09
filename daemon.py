@@ -4,7 +4,7 @@
 
 import sys
 import os
-import tim
+import time
 import atexit
 import signal
 
