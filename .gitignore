@@ -3,3 +3,4 @@ __pycache__
 nohup.out
 bot_secrets.py
 connect_to_db.py
+*.log

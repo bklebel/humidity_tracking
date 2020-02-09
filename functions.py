@@ -8,15 +8,17 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
-# def connect_db():
-#     with open('db_credentials.txt') as file:
-#         params = file.read()
+def connect_db():
+    with open('db_credentials.txt') as file:
+        params = file.read()
 
-#     connection = psycopg2.connect(params)
+    connection = psycopg2.connect(params)
 
-#     return connection
+    return connection
 
 # define function for printing results
+
+
 def format_result(time, humidity, temperature):
     if humidity is not None and temperature is not None:
         # format time string
@@ -27,8 +29,7 @@ def format_result(time, humidity, temperature):
         return 'Failed to get reading.'
 
 
-
-def filterOutliers(values, std_factor = 2):
+def filterOutliers(values, std_factor=2):
     mean = np.mean(values)
     standard_deviation = np.std(values)
 
@@ -37,9 +38,11 @@ def filterOutliers(values, std_factor = 2):
 
     final_values = np.zeros_like(values)
     final_values[:] = np.NaN
-    final_values = values[np.where(values > mean - std_factor * standard_deviation)]
-    final_values = final_values[np.where(final_values < mean + std_factor * standard_deviation)]
-    
+    final_values = values[
+        np.where(values > mean - std_factor * standard_deviation)]
+    final_values = final_values[
+        np.where(final_values < mean + std_factor * standard_deviation)]
+
     return np.mean(final_values)
 
 
@@ -67,8 +70,6 @@ def get_data():
         humidity.append(hum)
 
     return date, filterOutliers(np.array(humidity)), filterOutliers(np.array(temperature))
-
-
 
 
 def create_logger(file, log=None, form='%(asctime)s - %(name)s - %(levelname)s - %(message)s'):
