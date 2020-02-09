@@ -1,4 +1,4 @@
-# import psycopg2
+import psycopg2
 import Adafruit_DHT
 from datetime import datetime
 import time
@@ -16,10 +16,8 @@ def connect_db():
 
     return connection
 
-# define function for printing results
-
-
 def format_result(time, humidity, temperature):
+    """format results nicely"""
     if humidity is not None and temperature is not None:
         # format time string
         time_pretty = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -30,6 +28,7 @@ def format_result(time, humidity, temperature):
 
 
 def filterOutliers(values, std_factor=2):
+    """discard outliers of distribution of measured values"""
     mean = np.mean(values)
     standard_deviation = np.std(values)
 
@@ -37,22 +36,31 @@ def filterOutliers(values, std_factor=2):
         return np.mean(values)
 
     final_values = np.zeros_like(values)
-    final_values[:] = np.NaN
+    final_values[:] = np.NaN  # fill array with NaN values
+    # take only those values, which are within a central part of the distribution of values
     final_values = values[
         np.where(values > mean - std_factor * standard_deviation)]
     final_values = final_values[
         np.where(final_values < mean + std_factor * standard_deviation)]
 
+    # return one value: mean
     return np.mean(final_values)
 
 
 def get_data_raw(n=1):
-    # sensor type and the pin to which the sensor is connected are hard coded
-    # since they don't change
+    """read raw sensor data for humidity and temperature
+    sensor type and the pin to which the sensor is connected are hard coded
+    since they don't change
+
+    This is a generator! - it is best used in the definition of a for-loop, as in 'get_data()'
+    if one wants all the output of this function in a list, the easiest way would be:
+        [x for x in get_data_raw(n)]
+    This however, somehow defeats the purpose...."""
     for _ in range(n):
         humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 4)
 
         if humidity is not None and temperature is not None:
+            # here, the values are returned, once for every loop iteration
             yield (humidity, temperature)
         else:
             logger.info('We got no reading, but ``humidity = ' + str(humidity) +
@@ -62,6 +70,10 @@ def get_data_raw(n=1):
 
 
 def get_data():
+    """read data from the DHT22/AM2302
+
+    this includes filtering outliers
+    returns (datetime object, humidity:float, temperature:float)"""
     date = datetime.now()
     temperature = []
     humidity = []
