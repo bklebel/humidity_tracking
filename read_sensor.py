@@ -1,55 +1,29 @@
-#!/usr/bin/env python3
-
 import time
 from functions import get_data
 from functions import create_logger
-from functions import connect_db
 
-import sys
+import numpy as np
 
-# setup db connection
-con = connect_db()
-cursor = con.cursor()
+from prometheus_client import start_http_server
+from prometheus_client import Gauge
 
-# set sleep duration for test purposes
+
 sleep_duration = 60
 
-# set up logging for debugging
-logger = create_logger('read_sensor.log')
-
-
-# function for writing results to database
-def write_to_db(cursor, date, humidity, temperature):
-
-    insert_sql = """INSERT INTO humidity_data
-                    VALUES (%s, %s, %s);"""
-
-    cursor.execute(insert_sql, (date, humidity, temperature))
-
-    con.commit()
-
-
-def cleanup_db():
-    con.close()
-    cursor.close()
-    logger.info("Database connections closed.")
-
-
-def main():
-    logger.info(f'Reading data and writing to database every {sleep_duration} seconds.')
-
-    while True:
-        date, humidity, temperature = get_data()
-        # print(date, humidity, temperature)
-        write_to_db(cursor, date, humidity, temperature)
-
-        time.sleep(sleep_duration)
+logger_events = create_logger('read_sensor.log', 'events')
+logger_data = create_logger(file='data.log', log='temps', form='%(asctime)s %(message)s')
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        sys.exit(0)
-    finally:
-        logger.info('Terminating...')
-        cleanup_db()
+    logger_events.info(f'Reading data and writing to database every {sleep_duration} seconds.')
+    prom_temp = Gauge('Temperature', 'Temperature measured by the DHT22 Sensor')
+    prom_humid = Gauge('Humidity', 'Relative Humidity measured by the DHT22 Sensor')
+    start_http_server(8000)
+    while True:
+        date, humidity, temperature = get_data()
+        print(date, humidity, temperature)
+        # logger_data.info(f'; {humidity}; {temperature}')
+        prom_temp.set(temperature)
+        prom_humid.set(humidity)
+
+
+        time.sleep(sleep_duration)

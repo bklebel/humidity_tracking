@@ -1,4 +1,4 @@
-import psycopg2
+# import psycopg2
 import Adafruit_DHT
 from datetime import datetime
 import time
