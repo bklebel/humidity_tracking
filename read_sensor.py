@@ -15,7 +15,7 @@ cursor = con.cursor()
 sleep_duration = 60
 
 # set up logging for debugging
-logger_events = create_logger('read_sensor.log', 'events')
+logger = create_logger('read_sensor.log')
 
 
 # function for writing results to database
@@ -36,7 +36,7 @@ def cleanup_db():
 
 
 def main():
-    logger_events.info(f'Reading data and writing to database every {sleep_duration} seconds.')
+    logger.info(f'Reading data and writing to database every {sleep_duration} seconds.')
 
     while True:
         date, humidity, temperature = get_data()
@@ -51,5 +51,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
-        logger_events.info('Terminating...')
+        logger.info('Terminating...')
         cleanup_db()
