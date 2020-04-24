@@ -57,7 +57,7 @@ def get_data_raw(n=1):
         [x for x in get_data_raw(n)]
     This however, somehow defeats the purpose...."""
     for _ in range(n):
-        time.sleep(1)
+        time.sleep(0.5)
         humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 4)
 
         if humidity is not None and temperature is not None:

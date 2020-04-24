@@ -21,14 +21,15 @@ logger_data = create_logger(
 
 def main():
     logger_events.info(f'Reading data and writing to database every {sleep_duration} seconds.')
+    start_http_server(8000)
     prom_temp = Gauge(
         'Temperature', 'Temperature measured by the DHT22 Sensor')
     prom_humid = Gauge(
         'Humidity', 'Relative Humidity measured by the DHT22 Sensor')
-    start_http_server(8000)
     while True:
         date, humidity, temperature = get_data()
-        print(date, humidity, temperature)
+        # print(date, humidity, temperature)
+        sys.stdout.write('T[C] = {temp}, rH[%] = {hum}'.format(hum=humidity, temp=temperature))
         # logger_data.info(f'; {humidity}; {temperature}')
         prom_temp.set(temperature)
         prom_humid.set(humidity)
