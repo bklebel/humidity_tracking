@@ -44,7 +44,11 @@ def filterOutliers(values, std_factor=2):
         np.where(final_values < mean + std_factor * standard_deviation)]
 
     # return one value: mean
-    return np.mean(final_values)
+    mean = np.mean(final_values)
+    if mean == 0:
+        return np.NaN
+    else:
+        return mean
 
 
 def get_data_raw(n=1):
