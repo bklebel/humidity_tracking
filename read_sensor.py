@@ -27,13 +27,16 @@ def main():
         'Humidity', 'Relative Humidity measured by the DHT22 Sensor')
     start_http_server(8000)
     while True:
+        t_start = time.time()
         date, humidity, temperature = get_data()
         print(date, humidity, temperature)
         # logger_data.info(f'; {humidity}; {temperature}')
         prom_temp.set(temperature)
         prom_humid.set(humidity)
+        t_end = time.time()
+        t_delta = t_end - t_start
 
-        time.sleep(sleep_duration)
+        time.sleep(sleep_duration - t_delta)
 
 
 class MyDaemon(Daemon):
