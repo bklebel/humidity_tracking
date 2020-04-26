@@ -10,6 +10,7 @@ from daemon import Daemon
 
 from functions import get_data
 from functions import create_logger
+from functions import customEx
 
 
 sleep_duration = 60
@@ -28,7 +29,14 @@ def main():
         'Humidity', 'Relative Humidity measured by the DHT22 Sensor')
     while True:
         t_start = time.time()
-        date, humidity, temperature = get_data()
+        try:
+            date, humidity, temperature = get_data()
+            if None in (humidity, temperature):
+                raise customEx
+            # customEx can also be raised in get_data()! 
+        except customEx:
+            time.sleep(int(sleep_duration/10))
+            continue
         # print(date, humidity, temperature)
         sys.stdout.write('T[C] = {temp}, rH[%] = {hum}'.format(hum=humidity, temp=temperature))
         # logger_data.info(f'; {humidity}; {temperature}')

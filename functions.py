@@ -8,6 +8,12 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+class customEx(Exception):
+    """docstring for cumstonEx"""
+    pass
+        
+
+
 def connect_db():
     with open('db_credentials.txt') as file:
         params = file.read()
@@ -33,7 +39,7 @@ def filterOutliers(values, std_factor=2):
     standard_deviation = np.std(values)
 
     if standard_deviation == 0:
-        return np.mean(values)
+        return mean
 
     final_values = np.zeros_like(values)
     final_values[:] = np.NaN  # fill array with NaN values
@@ -44,9 +50,9 @@ def filterOutliers(values, std_factor=2):
         np.where(final_values < mean + std_factor * standard_deviation)]
 
     # return one value: mean
-    mean = np.mean(final_values)
-    if mean == 0:
-        return np.NaN
+    mean = np.nanmean(final_values)
+    if mean == 0 or np.isnan(mean) or mean is None:
+        raise customEx
     else:
         return mean
 
@@ -71,7 +77,7 @@ def get_data_raw(n=1):
             logger.info('We got no reading, but ``humidity = ' + str(humidity) +
                         ' & temp = ' + str(temperature) + '`` , trying again.')
             time.sleep(2)  # sleep for two seconds before re-trying
-            yield [x for x in get_data_raw(n)]
+            yield [x for x in get_data_raw(1)]
 
 
 def get_data():
