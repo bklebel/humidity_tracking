@@ -5,3 +5,6 @@ With this project I intend to (a) practice python (my main programming language 
 in one of our apartment's rooms prone to mould infestation.
 
 The code is not guaranteed to run stable at all, use with caution.
+
+
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/bklebel/humidity_tracking/?ref=repository-badge)

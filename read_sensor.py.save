@@ -1,7 +1,7 @@
 import time
 import sys
 
-# import numpy as np
+import numpy as np
 
 from prometheus_client import start_http_server
 from prometheus_client import Gauge
@@ -9,31 +9,20 @@ from prometheus_client import Gauge
 from daemon import Daemon
 
 from functions import get_data
-# from functions import create_logger
+from functions import create_logger
 from functions import customEx
 
-import logging
 
 sleep_duration = 60
 
-# logger_events = create_logger('read_sensor.log', 'events')
-# logger_data = create_logger(
-#     file='data.log', log='temps', form='%(asctime)s %(message)s')
-
-
-root = logging.getLogger()
-root.setLevel(logging.INFO)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
+logger_events = create_logger('read_sensor.log', 'events')
+logger_data = create_logger(
+    file='data.log', log='temps', form='%(asctime)s %(message)s')
 
 
 def main():
-    root.info(f'Reading data and writing to database every {sleep_duration} seconds.')
-    # start_http_server(8000)
+    logger_events.info(f'Reading data and writing to database every {sleep_duration} seconds.')
+q    start_http_server(8000)
     prom_temp = Gauge(
         'Temperature', 'Temperature measured by the DHT22 Sensor')
     prom_humid = Gauge(
@@ -49,21 +38,14 @@ def main():
             time.sleep(int(sleep_duration/10))
             continue
         # print(date, humidity, temperature)
-        root.debug('climate inside: T[C] = {temp}, rH[%] = {hum}'.format(hum=humidity, temp=temperature))
+        sys.stdout.write('T[C] = {temp}, rH[%] = {hum}'.format(hum=humidity, temp=temperature))
         # logger_data.info(f'; {humidity}; {temperature}')
         prom_temp.set(temperature)
         prom_humid.set(humidity)
         t_end = time.time()
         t_delta = t_end - t_start
-        try:
-            first
-        except NameError as e:
-            first = False
-            start_http_server(8000)
-        try:
-            time.sleep(sleep_duration - t_delta)
-        except ValueError:
-            continue
+
+        time.sleep(sleep_duration - t_delta)
 
 
 class MyDaemon(Daemon):
