@@ -11,26 +11,25 @@ logger.addHandler(logging.NullHandler())
 class customEx(Exception):
     """docstring for cumstonEx"""
     pass
-        
 
 
-def connect_db():
-    with open('db_credentials.txt') as file:
-        params = file.read()
+# def connect_db():
+#     with open('db_credentials.txt') as file:
+#         params = file.read()
 
-    connection = psycopg2.connect(params)
+#     connection = psycopg2.connect(params)
 
-    return connection
+#     return connection
+
 
 def format_result(time, humidity, temperature):
     """format results nicely"""
-    if humidity is not None and temperature is not None:
-        # format time string
-        time_pretty = time.strftime('%Y-%m-%d %H:%M:%S')
-
-        return 'Time={0}  Temp={1:0.1f}*C  Humidity={2:0.1f}%'.format(time_pretty, temperature, humidity)
-    else:
+    if None in (humidity, temperature):
         return 'Failed to get reading.'
+
+    # format time string
+    time_pretty = time.strftime('%Y-%m-%d %H:%M:%S')
+    return 'Time={0}  Temp={1:0.1f}*C  Humidity={2:0.1f}%'.format(time_pretty, temperature, humidity)
 
 
 def filterOutliers(values, std_factor=2):
@@ -43,7 +42,8 @@ def filterOutliers(values, std_factor=2):
 
     final_values = np.zeros_like(values)
     final_values[:] = np.NaN  # fill array with NaN values
-    # take only those values, which are within a central part of the distribution of values
+    # take only those values, which are within a central part of the
+    # distribution of values
     final_values = values[
         np.where(values > mean - std_factor * standard_deviation)]
     final_values = final_values[
@@ -53,8 +53,7 @@ def filterOutliers(values, std_factor=2):
     mean = np.nanmean(final_values)
     if mean == 0 or np.isnan(mean) or mean is None:
         raise customEx
-    else:
-        return mean
+    return mean
 
 
 def get_data_raw(n=1):
@@ -77,7 +76,7 @@ def get_data_raw(n=1):
             logger.info('We got no reading, but ``humidity = ' + str(humidity) +
                         ' & temp = ' + str(temperature) + '`` , trying again.')
             time.sleep(2)  # sleep for two seconds before re-trying
-            yield [x for x in get_data_raw(1)]
+            yield tuple(get_data_raw(1))
 
 
 def get_data():

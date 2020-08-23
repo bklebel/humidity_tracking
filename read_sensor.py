@@ -1,7 +1,7 @@
 import time
 import sys
 
-import numpy as np
+# import numpy as np
 
 from prometheus_client import start_http_server
 from prometheus_client import Gauge
