@@ -71,11 +71,13 @@ def read_sensor():
         if None in (humidity, temperature):
             raise NoneException
 
+        logger.debug('temp: %d, hum: %d', temperature, humidity)
+
         return (datetime.now(), humidity, temperature)
     except RuntimeError as e:
         logger.debug(e)
-        logger.debug('We got no reading, trying again.')
-        sleep(0.01)
+        # logger.debug('We got no reading, trying again.')
+        sleep(0.1)
         return read_sensor()
     except NoneException:
         logger.info('We got no reading, but ``humidity = ' + str(humidity) +
