@@ -15,7 +15,6 @@ class NoneException(Exception):
 
 
 class customEx(Exception):
-    """docstring for cumstonEx"""
     pass
 
 
@@ -61,8 +60,7 @@ def filterOutliers(values, std_factor=2):
     mean = np.nanmean(final_values)
     if np.isnan(mean) or mean is None:
         raise customEx
-    else:
-        return mean
+    return mean
 
 
 def read_sensor():
