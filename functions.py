@@ -71,15 +71,16 @@ def read_sensor():
         if None in (humidity, temperature):
             raise NoneException
 
-        return (datetime.now(), temperature, humidity)
-    except RuntimeError:
-        logger.info('We got no reading, trying again.')
-        sleep(2)
+        return (datetime.now(), humidity, temperature)
+    except RuntimeError as e:
+        logger.debug(e)
+        logger.debug('We got no reading, trying again.')
+        sleep(0.01)
         return read_sensor()
     except NoneException:
         logger.info('We got no reading, but ``humidity = ' + str(humidity) +
                     ' & temp = ' + str(temperature) + '`` , trying again.')
-        sleep(2)
+        sleep(0.5)
         return read_sensor()
 
 
@@ -93,7 +94,7 @@ def get_data_raw(n=1):
         list(get_data_raw(n))
     This however, somehow defeats the purpose...."""
     for _ in range(n):
-        sleep(0.5)
+        # sleep(0.5)
         d, humidity, temperature = read_sensor()
         yield (humidity, temperature)
 
