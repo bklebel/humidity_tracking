@@ -1,15 +1,20 @@
 # import psycopg2
-import Adafruit_DHT
+import board
+import adafruit_dht
 from datetime import datetime
-import time
+from time import sleep
 import numpy as np
+
 import logging
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
 
 
+class NoneException(Exception):
+    pass
+
+
 class customEx(Exception):
-    """docstring for cumstonEx"""
     pass
 
 
@@ -20,6 +25,8 @@ class customEx(Exception):
 #     connection = psycopg2.connect(params)
 
 #     return connection
+
+# define function for printing results
 
 
 def format_result(time, humidity, temperature):
@@ -51,9 +58,29 @@ def filterOutliers(values, std_factor=2):
 
     # return one value: mean
     mean = np.nanmean(final_values)
-    if mean == 0 or np.isnan(mean) or mean is None:
+    if np.isnan(mean) or mean is None:
         raise customEx
     return mean
+
+
+def read_sensor():
+    try:
+        dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
+        temperature = dhtDevice.temperature
+        humidity = dhtDevice.humidity
+        if None in (humidity, temperature):
+            raise NoneException
+
+        return (datetime.now(), temperature, humidity)
+    except RuntimeError:
+        logger.info('We got no reading, trying again.')
+        sleep(2)
+        return read_sensor()
+    except NoneException:
+        logger.info('We got no reading, but ``humidity = ' + str(humidity) +
+                    ' & temp = ' + str(temperature) + '`` , trying again.')
+        sleep(2)
+        return read_sensor()
 
 
 def get_data_raw(n=1):
@@ -63,20 +90,12 @@ def get_data_raw(n=1):
 
     This is a generator! - it is best used in the definition of a for-loop, as in 'get_data()'
     if one wants all the output of this function in a list, the easiest way would be:
-        [x for x in get_data_raw(n)]
+        list(get_data_raw(n))
     This however, somehow defeats the purpose...."""
     for _ in range(n):
-        time.sleep(0.5)
-        humidity, temperature = Adafruit_DHT.read_retry(Adafruit_DHT.AM2302, 4)
-
-        if humidity is not None and temperature is not None:
-            # here, the values are returned, once for every loop iteration
-            yield (humidity, temperature)
-        else:
-            logger.info('We got no reading, but ``humidity = ' + str(humidity) +
-                        ' & temp = ' + str(temperature) + '`` , trying again.')
-            time.sleep(2)  # sleep for two seconds before re-trying
-            yield tuple(get_data_raw(1))
+        sleep(0.5)
+        d, humidity, temperature = read_sensor()
+        yield (humidity, temperature)
 
 
 def get_data():
@@ -94,19 +113,17 @@ def get_data():
     return date, filterOutliers(np.array(humidity)), filterOutliers(np.array(temperature))
 
 
-def create_logger(file, log=None, form='%(asctime)s - %(name)s - %(levelname)s - %(message)s'):
+def create_logger(file):
     # set up logging for debugging
-    if log is None:
-        logger = logging.getLogger()
-    else:
-        logger = logging.getLogger(log)
+    logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
     # create file handler
     fh = logging.FileHandler(file)
 
     # create formatter and add it to the handler
-    formatter = logging.Formatter(form)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
 
     # add handler
